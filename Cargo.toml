@@ -1,0 +1,58 @@
+# llmdoc/Cargo.toml
+[package]
+name = "llmdocs"
+version = "0.1.0"
+edition = "2021"
+description = "A database-driven documentation system for LLM-based software development."
+authors = ["Your Name <you@example.com>"] # Placeholder, to be updated by the user
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/yourusername/llmdocs" # Placeholder
+readme = "README.md" # Will be created later
+keywords = ["documentation", "llm", "database", "cli"]
+categories = ["command-line-utilities", "development-tools"]
+
+[dependencies]
+# Core
+tokio = { version = "1", features = ["full"] }
+rusqlite = { version = "0.36.0", features = ["bundled", "chrono", "uuid"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+chrono = { version = "0.4", features = ["serde"] }
+uuid = { version = "1.7.0", features = ["v4", "serde"] }
+thiserror = "2.0.12"
+anyhow = "1.0"
+
+# CLI
+clap = { version = "4.5.4", features = ["derive", "env"] }
+
+# Logging
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter", "json"] }
+tracing-appender = "0.2" # For file-based logging
+
+# Async trait
+async-trait = "0.1.77" # Or latest compatible version
+
+# Validation
+jsonschema = "0.30.0" # Reverted to original name
+
+# Templating (for export)
+handlebars = "6.3.2"
+
+# HTTP Client (for embeddings, initially)
+reqwest = { version = "0.12.4", features = ["json", "blocking"] } # Added blocking for potential sync needs
+
+# Configuration
+config = { version = "0.15.11", features = ["toml"] }
+shellexpand = "3.1.0" # For expanding ~ in paths
+
+[dev-dependencies]
+# For testing
+assert_cmd = "2.0"
+predicates = "3.1.0"
+tempfile = "3.10.1"
+rstest = "0.25.0"
+
+[[bin]]
+name = "llmdocs"
+path = "src/main.rs"
