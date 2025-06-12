@@ -27,9 +27,9 @@ pub mod utils;
 // Re-export key components for easier access from main.rs or other binaries/tests
 pub use app_config::Config;
 pub use cli::Cli;
+pub use logging::{Logger, LogConfig};
 // pub use core::database; // Specific database functions might be re-exported as needed
 // pub use services::*; // Or re-export specific services
-// pub use cli::Cli; // Ensure Cli is re-exported for main.rs // This line was a duplicate
 
 /// Initializes essential application components.
 /// This could include setting up global state, etc., if needed beyond main.rs.
