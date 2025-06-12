@@ -3,7 +3,6 @@
 pub mod database;
 pub mod models;
 pub mod errors;
-pub mod validation;
 // pub mod migrations; // If migrations are handled via Rust code
 
 // Re-export key components from submodules if desired

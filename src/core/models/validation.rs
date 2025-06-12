@@ -1,6 +1,5 @@
-// llmdoc/src/core/validation.rs
+// llmdoc/src/core/models/validation.rs
 
-// llmdoc/src/core/validation.rs
 // Using jsonschema 0.30.0 API based on provided documentation
 // ErrorIterator is confirmed unused by the compiler with the current working approach.
 use jsonschema::{Validator as ActualJsonSchemaValidator, ValidationError};

@@ -1,9 +1,7 @@
-// llmdoc/src/core/models.rs
+// llmdoc/src/core/models/task.rs
 
 use serde::{Deserialize, Serialize};
 use chrono::{DateTime, Utc};
-
-// Placeholder for data models (Task, Sprint, Component, etc.)
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Task {
@@ -19,21 +17,4 @@ pub struct Task {
     pub component_id: Option<String>, // Foreign key to Component
     // pub assigned_to: Option<String>, // User ID
     // pub tags: Vec<String>,
-}
-
-#[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct Sprint {
-    pub id: String, // UUID
-    pub name: String,
-    pub start_date: Option<DateTime<Utc>>,
-    pub end_date: Option<DateTime<Utc>>,
-    pub goal: Option<String>,
-    pub created_at: DateTime<Utc>,
-    pub updated_at: DateTime<Utc>,
-}
-
-// Add other models like Component, ADR, UserStory as needed
-
-pub fn models_init_message() {
-    tracing::debug!("Models module initialized (placeholder).");
 }

@@ -37,8 +37,3 @@
 
 // For now, this module is a placeholder as `logger.rs` directly uses `tracing_appender`.
 // It can be expanded if custom file handling beyond `tracing_appender`'s capabilities is needed.
-
-pub(crate) fn placeholder() {
-    // This function is just to make the module non-empty.
-    // It can be removed once actual functionality is added.
-}
