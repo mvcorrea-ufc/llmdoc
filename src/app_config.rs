@@ -1,7 +1,8 @@
 // llmdoc/src/app_config.rs
 use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
-use anyhow::Result;
+use crate::core::errors::{Error, Result}; // Use custom Result and Error
+use toml;
 
 /// Application configuration structure.
 /// Holds settings for database, logging, API keys, etc.
@@ -112,7 +113,7 @@ impl Config {
     /// 2. ~/.config/llmdocs/config.toml
     /// If no file is found or loading fails, it returns an error.
     /// Use `Config::load(None).unwrap_or_default()` for a fallback.
-    pub fn load(custom_path: Option<PathBuf>) -> Result<Self> {
+    pub fn load(custom_path: Option<PathBuf>) -> Result<Self, Error> { // Change return type
         let mut settings = config::Config::builder();
 
         let paths_to_try: Vec<PathBuf> = if let Some(cp) = custom_path {
@@ -165,7 +166,7 @@ impl Config {
     }
 
     /// Ensures that directories specified in the config exist, creating them if necessary.
-    pub fn ensure_directories_exist(&self) -> Result<()> {
+    pub fn ensure_directories_exist(&self) -> Result<(), Error> { // Change return type
         let dirs_to_check: Vec<Option<PathBuf>> = vec![
             self.log_file.parent().map(|p| p.to_path_buf()),
             Some(self.schema_dir.clone()), // Clone to own PathBuf
@@ -195,5 +196,14 @@ impl Config {
             return Some(PathBuf::from(&self.database_url));
         }
         None
+    }
+    /// Saves the current configuration to a TOML file.
+    pub fn save(&self, path: &PathBuf) -> Result<(), Error> { // Change return type
+        let toml_string = toml::to_string_pretty(self)
+            .map_err(|e| Error::ConfigError(format!("Failed to serialize config to TOML: {}", e)))?; // Map to ConfigError
+        std::fs::write(path, toml_string)
+            .map_err(|e| Error::IoError(e))?; // Map to IoError
+        tracing::info!("Configuration saved to: {:?}", path);
+        Ok(())
     }
 }

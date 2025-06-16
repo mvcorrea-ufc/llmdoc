@@ -1,0 +1,6 @@
+{
+  "id": "COMP-XXX",
+  "name": "string",
+  "type": "module|service|library|database|api",
+  "description": "string"
+}

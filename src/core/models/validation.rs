@@ -8,11 +8,11 @@ use anyhow::Result;
 
 // Renamed our struct to avoid conflict with jsonschema::Validator
 // jsonschema::Validator does not take a lifetime parameter.
-pub struct SchemaValidator {
+pub struct Validator {
     compiled_schema: ActualJsonSchemaValidator,
 }
 
-impl SchemaValidator {
+impl Validator {
     /// Creates a new validator from a JSON schema value using Draft 7.
     /// The schema_json's lifetime is handled by the jsonschema::Validator internally (e.g. by cloning or Arc).
     pub fn new(schema_json: &Value) -> Result<Self> {
@@ -25,7 +25,7 @@ impl SchemaValidator {
                 // Format the single ValidationError from compilation
                 anyhow::anyhow!("Failed to compile JSON schema: Error at '{}': {}", validation_error.instance_path, validation_error)
             })?;
-        Ok(SchemaValidator { compiled_schema })
+        Ok(Validator { compiled_schema })
     }
 
     /// Validates a JSON value against the loaded schema.
@@ -53,8 +53,10 @@ impl SchemaValidator {
     }
 }
 
-// The OwnedValidator struct and its related comments are removed as they are not currently used
-// and the primary focus is to fix the main Validator (now SchemaValidator).
+/// Validates a task ID format (e.g., TASK-001).
+pub fn is_valid_task_id(id: &str) -> bool {
+    regex::Regex::new(r"^[A-Z]+-\d+$").unwrap().is_match(id)
+}
 
 /// Loads a schema from a file path, parses it into a serde_json::Value.
 pub fn load_schema_value_from_file(schema_path: &std::path::Path) -> Result<Value> {
@@ -69,7 +71,7 @@ pub fn validation_init_message() {
 
 #[cfg(test)]
 mod tests {
-    use super::*; // Imports SchemaValidator, load_schema_value_from_file, etc.
+    use super::*; // Imports Validator, load_schema_value_from_file, etc.
     use serde_json::json;
     use std::io::Write;
     use tempfile::NamedTempFile;
@@ -81,7 +83,7 @@ mod tests {
     }
 
     #[test]
-    fn test_schema_validator_valid_data() -> Result<()> { // Renamed test to match struct
+    fn test_validator_valid_data() -> Result<()> { // Renamed test to match struct
         let schema_json = json!({
             "type": "object",
             "properties": {
@@ -90,7 +92,7 @@ mod tests {
             },
             "required": ["name", "age"]
         });
-        let validator = SchemaValidator::new(&schema_json)?;
+        let validator = Validator::new(&schema_json)?;
         let valid_data = json!({ "name": "Alice", "age": 30 });
         assert!(validator.validate(&valid_data).is_ok());
         assert!(validator.is_valid(&valid_data));
@@ -98,7 +100,7 @@ mod tests {
     }
 
     #[test]
-    fn test_schema_validator_invalid_data() -> Result<()> { // Renamed test
+    fn test_validator_invalid_data() -> Result<()> { // Renamed test
         let schema_json = json!({
             "type": "object",
             "properties": {
@@ -107,7 +109,7 @@ mod tests {
             },
             "required": ["name", "age"]
         });
-        let validator = SchemaValidator::new(&schema_json)?;
+        let validator = Validator::new(&schema_json)?;
         
         let invalid_data_missing_field = json!({ "name": "Bob" });
         assert!(validator.validate(&invalid_data_missing_field).is_err());
@@ -124,7 +126,7 @@ mod tests {
     }
 
     #[test]
-    fn test_load_schema_and_validate_with_schema_validator() -> Result<()> { // Renamed test
+    fn test_load_schema_and_validate_with_validator() -> Result<()> { // Renamed test
         let schema_content = r#"{
             "type": "object",
             "properties": { "id": { "type": "string" } },
@@ -133,7 +135,7 @@ mod tests {
         let schema_file = create_temp_schema_file(schema_content);
         let schema_json_val = load_schema_value_from_file(schema_file.path())?;
         
-        let validator = SchemaValidator::new(&schema_json_val)?;
+        let validator = Validator::new(&schema_json_val)?;
 
         let valid_data = json!({ "id": "test-id" });
         assert!(validator.validate(&valid_data).is_ok());
@@ -141,5 +143,16 @@ mod tests {
         let invalid_data = json!({ "name": "no-id" });
         assert!(validator.validate(&invalid_data).is_err());
         Ok(())
+    }
+
+    #[test]
+    fn test_is_valid_task_id() {
+        assert!(is_valid_task_id("TASK-001"));
+        assert!(is_valid_task_id("SPRINT-123"));
+        assert!(!is_valid_task_id("task-001")); // Lowercase prefix
+        assert!(!is_valid_task_id("TASK001")); // Missing hyphen
+        assert!(!is_valid_task_id("TASK-ABC")); // Non-numeric suffix
+        assert!(!is_valid_task_id("TASK-001-EXTRA")); // Extra parts
+        assert!(!is_valid_task_id("")); // Empty string
     }
 }

@@ -1,13 +1,35 @@
 // llmdoc/src/embeddings/mod.rs
 
 // Define submodules for different embedding providers
-// pub mod http_provider;
+pub mod http_provider;
 // pub mod native_provider; // e.g., for ONNX/Candle based models
 // pub mod provider_trait; // Trait for embedding providers
+
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+pub enum EmbeddingProviderProviderType {
+    Http,
+    Native,
+    None,
+}
 
 use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
+use std::str::FromStr;
+use crate::core::errors::Error;
+
+impl FromStr for EmbeddingProviderProviderType {
+    type Err = Error;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s.to_lowercase().as_str() {
+            "http" => Ok(EmbeddingProviderProviderType::Http),
+            "native" => Ok(EmbeddingProviderProviderType::Native),
+            "none" => Ok(EmbeddingProviderProviderType::None),
+            _ => Err(Error::ConfigError(format!("Unknown embedding provider type: {}", s))),
+        }
+    }
+}
 
 #[derive(Error, Debug)]
 pub enum EmbeddingError {

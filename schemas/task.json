@@ -1,0 +1,6 @@
+{
+  "id": "TASK-XXX",
+  "title": "string",
+  "status": "todo|in_progress|done|blocked|cancelled",
+  "type": "feature|bug|task|epic|story|spike"
+}

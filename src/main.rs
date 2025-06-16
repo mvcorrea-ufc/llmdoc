@@ -1,22 +1,22 @@
 // llmdoc/src/main.rs
-use anyhow::Result;
 use clap::Parser;
 use llmdocs::app_config::Config;
 use llmdocs::cli::Cli;
 use llmdocs::logging::{Logger, LogConfig, LogLevel}; // Import new logging components
 use llmdocs::log_info; // Import the log_info macro
 
+use llmdocs::core::errors::Result;
+
 
 #[tokio::main]
 async fn main() -> Result<()> {
     // Load configuration first, as logging setup might depend on it.
-    let config = Config::load(None)?;
+    let config = Config::load(None)
+        .map_err(|e| llmdocs::core::errors::Error::ConfigError(e.to_string()))?;
 
     // Ensure directories specified in config exist
-    if let Err(e) = config.ensure_directories_exist() {
-        eprintln!("Failed to create necessary application directories: {}. Exiting.", e);
-        return Err(e);
-    }
+    config.ensure_directories_exist()
+        .map_err(|e| llmdocs::core::errors::Error::ConfigError(e.to_string()))?;
 
     // Prepare LogConfig from app_config::Config
     let log_level_console = LogLevel::from_str(&config.log_level_console)
@@ -25,11 +25,11 @@ async fn main() -> Result<()> {
         .unwrap_or(LogLevel::Debug); // Default to Debug on parse error
 
     let log_file_path = config.log_file.parent().ok_or_else(|| {
-        anyhow::anyhow!("Log file path {:?} does not have a parent directory.", config.log_file)
+        llmdocs::core::errors::Error::InvalidInput(format!("Log file path {:?} does not have a parent directory.", config.log_file))
     })?.to_path_buf();
 
     let log_file_name_prefix = config.log_file.file_name().ok_or_else(|| {
-        anyhow::anyhow!("Log file path {:?} does not have a file name.", config.log_file)
+        llmdocs::core::errors::Error::InvalidInput(format!("Log file path {:?} does not have a file name.", config.log_file))
     })?.to_string_lossy().into_owned();
 
     let app_log_config = LogConfig {
@@ -48,7 +48,7 @@ async fn main() -> Result<()> {
         Err(e) => {
             eprintln!("Failed to initialize logging: {}. Some logs may be lost. Exiting.", e);
             // If logging is critical, exiting is safer.
-            return Err(e.into());
+            return Err(llmdocs::core::errors::Error::OperationFailed(format!("Failed to initialize logging: {}", e)));
         }
     };
 
@@ -61,9 +61,6 @@ async fn main() -> Result<()> {
     // Parse CLI arguments
     let cli_args = Cli::parse();
     tracing::debug!("CLI arguments parsed: {:?}", cli_args);
-
-    // TODO: Initialize database connection pool based on config
-    // let db_pool = llmdocs::core::database::init_pool(&config.database_url).await?;
 
     // Execute the command based on parsed arguments
     llmdocs::cli::process_cli_command(cli_args, &config).await?;

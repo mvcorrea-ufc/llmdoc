@@ -1,0 +1,7 @@
+{
+  "id": "SPRINT-XXX",
+  "name": "string",
+  "start_date": "YYYY-MM-DD",
+  "end_date": "YYYY-MM-DD",
+  "status": "planning|active|completed|cancelled"
+}

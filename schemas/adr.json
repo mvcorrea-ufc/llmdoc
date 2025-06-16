@@ -1,0 +1,8 @@
+{
+  "id": "ADRXXX",
+  "title": "string",
+  "status": "proposed|accepted|rejected|superseded",
+  "context": "string",
+  "decision": "string",
+  "consequences": "string"
+}
