@@ -65,12 +65,12 @@ pub async fn init(config: &Config, db_path: &PathBuf, force: bool) -> Result<()>
     
     println!("{}", "✅ LLMDocs project initialized successfully!".green());
     println!("\nNext steps:");
-    println!("  1. Start the embedding server (if using HTTP provider):");
-    println!("     {}", "python embedding_server.py".cyan());
+    println!("  1. Configure embedding provider (optional for semantic search):");
+    println!("     {}", "Edit .llmdocs/config.toml [embeddings] section".cyan());
     println!("  2. Add your first task:");
     println!("     {}", "llmdocs task add".cyan());
     println!("  3. View the guide:");
-    println!("     {}", "cat LLMDOCS_GUIDE.md".cyan());
+    println!("     {}", "cat .llmdocs/LLMDOCS_GUIDE.md".cyan());
     
     Ok(())
 }

@@ -136,8 +136,9 @@ log_file = ".llmdocs/logs/llmdocs.log"
 [embeddings]
 provider = "http"
 [embeddings.http_provider]
-url = "http://localhost:8080/embed"
-model = "text-embedding-ada-002"
+url = "http://localhost:8008/embed"
+api_key = ""  # Optional for external APIs
+model = "all-MiniLM-L6-v2"
 ```
 
 ## Architecture
@@ -200,8 +201,8 @@ src/
 - [ ] Performance optimizations
 
 ### 📋 Planned
+- [ ] Native ONNX embedding support
 - [ ] LLM integration for content generation
-- [ ] Vector embeddings for semantic search
 - [ ] Web interface
 - [ ] API endpoints
 - [ ] Advanced reporting and analytics

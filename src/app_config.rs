@@ -87,7 +87,7 @@ impl Default for EmbeddingsConfig {
 impl Default for HttpEmbeddingsConfig {
     fn default() -> Self {
         HttpEmbeddingsConfig {
-            url: "http://localhost:8008/embed".to_string(), // Default local Python server
+            url: "http://localhost:8008/embed".to_string(), // Default local embedding service
             api_key: None,
             model: None,
         }
